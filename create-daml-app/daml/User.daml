@@ -26,6 +26,16 @@ template User with
         create this with following = userToFollow :: following
     -- FOLLOW_END
 
+    -- MESSAGES_BEGIN
+    nonconsuming choice SendMessage: ContractId Message with
+        sender: Party
+        content: Text
+      controller sender
+      do
+        assertMsg "Designated user must follow you back to send a message" (elem sender following)
+        create Message with sender, receiver = username, content
+    -- MESSAGES_END
+
 -- ALIAS_BEGIN
 template Alias with
     username: Party
@@ -45,3 +55,13 @@ template Alias with
         archive self
         create this with alias = newAlias
 -- ALIAS_END
+
+
+-- Messages
+template Message with
+    sender: Party
+    receiver: Party
+    content: Text
+  where
+    signatory sender, receiver
+-- End Messages

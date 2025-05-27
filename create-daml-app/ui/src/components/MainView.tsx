@@ -8,6 +8,8 @@ import { User } from '@daml.js/create-daml-app';
 import { publicContext, userContext } from './App';
 import UserList from './UserList';
 import PartyListEdit from './PartyListEdit';
+import MessageEdit from './MessageEdit';
+import MessageList from './MessageList';
 
 // USERS_BEGIN
 const MainView: React.FC = () => {
@@ -87,6 +89,21 @@ const MainView: React.FC = () => {
                 onFollow={follow}
               />
               {/* USERLIST_END */}
+            </Segment>
+            <Segment>
+              <Header as='h2'>
+                <Icon name='pencil square' />
+                <Header.Content>
+                  Messages
+                  <Header.Subheader>Send a message to a follower</Header.Subheader>
+                </Header.Content>
+              </Header>
+              <MessageEdit
+                followers={followers.map(follower => follower.username)}
+                partyToAlias={partyToAlias}
+              />
+              <Divider />
+              <MessageList partyToAlias={partyToAlias}/>
             </Segment>
           </Grid.Column>
         </Grid.Row>
