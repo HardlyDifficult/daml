@@ -1,9 +1,9 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-/.daml
+.daml
+**/daml.js/
 build
 node_modules
 
 *.log
+.DS_Store
 
-ui/daml.js
+package-lock.json

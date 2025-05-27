@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "dev:daml": "daml start",
+        "dev:ui": "cd ui && npm run start"
+    }
+}
