@@ -1,5 +1,6 @@
 {
     "scripts": {
+        "codegen": "daml codegen js",
         "dev:daml": "daml start",
         "dev:ui": "cd ui && npm run start",
         "test": "cd ui && npm run test"
