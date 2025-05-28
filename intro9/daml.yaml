@@ -1,0 +1,10 @@
+sdk-version: 2.10.0
+name: intro9
+source: daml
+version: 1.0.0
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-script
+data-dependencies:
+  - ../intro7/assets.dar

@@ -1,0 +1,12 @@
+sdk-version: 2.10.0
+name: intro12-part2
+source: daml
+version: 1.0.0
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - daml-script
+data-dependencies:
+  - ./intro12-part1.dar
+build-options:
+  - --target=1.15
