@@ -180,6 +180,16 @@ template NonTransitive
       controller partyB
       do
         exercise other TryA
+
+    choice TryC
+      : ContractId NonTransitive
+        with
+          other : ContractId NonTransitive
+      controller partyB
+      do
+        create NonTransitive with
+          partyA = partyB
+          partyB = partyA
 -- NON_TRANSITIVE_END
 
 -- IOU_SCENARIO_BEGIN
@@ -291,4 +301,52 @@ iou_test = do
   submitMustFail bob do
     exerciseCmd nt1 TryB with
       other = nt2
+  submitMustFail bob do
+    exerciseCmd nt1 TryA
+  submitMustFail alice do
+    exerciseCmd nt1 TryB with
+      other = nt2
+  submitMustFail alice do
+    exerciseCmd nt1 TryA
+  submit bob do
+    exerciseCmd nt1 TryC with
+      other = nt2
 -- NON_TRANSITIVE_SCENARIO_END
+
+
+iou_proposal_test = do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  -- Alice issues an Iou proposal to Bob.
+  iouProposal <- submit alice do
+    createCmd IouProposal with
+      iou = Iou with
+        issuer = alice
+        owner = bob
+        cash = Cash with
+          amount = 100.0
+          currency = "USD"
+
+  -- Bob accepts the proposal.
+  submit bob do
+    exerciseCmd iouProposal IouProposal_Accept
+
+
+iou_transfer_cancel_test = do
+  alice <- allocateParty "Alice"
+  bob <- allocateParty "Bob"
+
+  proposalCid <- submit alice do
+    createCmd IouTransferProposal with
+      newOwner = bob
+      iou = Iou with
+        issuer = alice
+        owner = alice
+        cash = Cash with
+          amount = 100.0
+          currency = "USD"
+  iouCid <- submit alice do
+    exerciseCmd proposalCid IouTransferProposal_Cancel
+  submit alice do
+    archiveCmd iouCid
