@@ -1,0 +1,37 @@
+module TokenTest where
+
+import Token
+import PublicToken
+import Daml.Script
+import DA.Text (asciiToLower)
+
+
+_createUser : Text -> Party -> Script Party
+_createUser alias public = do
+    p <- allocateParty alias
+    userId <- validateUserId $ asciiToLower alias
+    let user = User (userId) (Some public)
+    let rights = CanActAs p :: [CanReadAs public | public <- [public]]
+    createUser user rights
+    pure p
+
+token_test_create = script do
+    public <- allocateParty "Public"
+    alice <- _createUser "Alice" public
+    bob <- _createUser "Bob" public
+    charlie <- allocateParty "Charlie"
+    aliceToken <- submit alice do
+        createCmd Token with owner = alice
+    alicePublicToken <- submit alice do
+        createCmd PublicToken with owner = alice, public = public
+    bobToken <- submit bob do
+        createCmd Token with owner = bob
+    bobPublicToken <- submit bob do
+        createCmd PublicToken with owner = bob, public = public
+    submit alice do
+        archiveCmd aliceToken
+    submit bob do
+        archiveCmd bobPublicToken
+    submitMustFail bob do
+        archiveCmd alicePublicToken
+

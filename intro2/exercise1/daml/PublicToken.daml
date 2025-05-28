@@ -1,0 +1,9 @@
+module PublicToken where
+
+template PublicToken
+  with
+    owner : Party
+    public : Party
+  where
+    signatory owner
+    observer public
