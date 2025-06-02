@@ -1,0 +1,29 @@
+module Problem2 where
+
+import Daml.Script as Script
+import DA.List 
+import DA.Foldable as Foldable(maximum)
+import DA.Math as Math(sqrt)
+import DA.Foldable(minimum)
+
+triangleArea: [Decimal] -> Either Text Decimal
+triangleArea sides
+  | length sides < 3 = Left "Error: Triangle has less than 3 sides"
+  | minimum sides <= 0.0 = Left "Error: Side of a triangle cannot be 0.0"
+  | otherwise = do
+    let sortedSides = sort sides
+    let smallestSum = sortedSides !! 0 + sortedSides !! 1
+    if smallestSum <= sortedSides !! 2 then Left "Error: This can't be a triangle as sum of any two sides must be greater than the third side"
+    else do
+      let max = Foldable.maximum sides
+      let s = sum sides / 2.0
+      let areaSquared = s * (s - sides !! 0) * (s - sides !! 1) * (s - sides !! 2)
+      Right (Math.sqrt areaSquared)
+
+testTriangle = script do 
+  debug $ triangleArea [4.0, 2.0, 5.0]
+  debug $ triangleArea [1.0, 2.0, 3.0]
+  debug $ triangleArea [1.0, 2.0]
+  debug $ triangleArea [1.0, 2.0, 0.0]
+
+  return ()
