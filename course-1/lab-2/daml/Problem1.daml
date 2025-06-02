@@ -1,0 +1,32 @@
+module Problem1 where
+
+import Daml.Script as Script
+import DA.List as List
+import DA.Map as Map
+
+songProblem = script do
+  let song = [("do", "a deer, a female deer"), ("re", "a drop of golden sun"), ("mi", "a name, I call myself"), ("fa", "a long long way to run")]
+
+  -- Without using any iterative functions such as map or any other concept not covered in the lessons so far, extract the notes and meanings into two separate lists and print them first in the given order, and then in the reverse order.
+
+  let notes = [note | (note, _) <- song]
+  debug notes
+  let manualNotes = [(song !! 0)._1, (song !! 1)._1, (song !! 2)._1, (song !! 3)._1]
+  debug manualNotes
+
+  let meanings = [meaning | (_, meaning) <- song]
+  debug meanings
+
+  debug (reverse notes)
+  debug (reverse meanings)
+
+  -- Create a Map called notesMap from the song list defined above. Use notesMap to print the meaning of all notes one by one as shown below
+  debug "----------------------"
+
+  let notesMap = Map.fromList song
+  debug (Map.lookup "do" notesMap)
+  debug (Map.lookup "re" notesMap)
+  debug $ Map.lookup "mi" notesMap
+  case Map.lookup "fa" notesMap of
+    Some (meaning) -> debug meaning
+    None -> debug "Note 'fa' not found in notesMap"

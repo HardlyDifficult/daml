@@ -1,0 +1,19 @@
+module Problem2 where
+
+import Daml.Script
+import DA.Text as Text
+import DA.List as List
+
+-- Write a function named termFrequency that takes a word and a string of words and returns the frequency of that word in the string
+
+termFrequency : Text -> Text -> Decimal
+termFrequency word listOfWords = do
+  let wws = words listOfWords
+  let matches = filter (== word) wws
+  let matchCount = List.length matches
+  let wordCount = List.length wws
+  intToDecimal matchCount / intToDecimal wordCount
+  
+test = script do 
+  debug $ termFrequency "long" "a long long way to run"
+  debug $ termFrequency "run" "a long long way to run run run run run run"
