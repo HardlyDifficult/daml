@@ -1,0 +1,81 @@
+module Lab1 where
+
+import DA.Date()
+import DA.Time()
+
+template CLPAccount
+  with
+    customer: Party
+    airline: Party
+    name: Text
+    address: Text
+    email: Text
+    phone: Optional Text
+    accountTimestamp: Time
+    dob: Date
+    points: Int
+  where
+    signatory customer, airline
+    ensure name /= ""
+      && address /= ""
+      && email /= ""
+
+template CLPApplication
+  with
+    customer: Party
+    airline: Party
+    name: Text
+    address: Text
+    email: Text
+    phone: Optional Text
+    appTimestamp: Time
+    dob: Date
+  where
+    signatory customer
+    observer airline
+    
+    choice SubmitApplication: ContractId CLPApplication
+      with
+        appCustomer: Party
+        appAirline: Party
+        customerName: Text
+        customerAddress: Text
+        customerEmail: Text
+        customerPhone: Optional Text
+        now: Time
+        customerDob: Date
+      controller customer
+      do
+        assertMsg "Customer must match the one who created the application" (appCustomer == customer)
+        assertMsg "Airline must match the one who created the application" (appAirline == airline)
+        create this with
+          name = customerName
+          address = customerAddress
+          email = customerEmail
+          phone = customerPhone
+          appTimestamp = now
+          dob = customerDob
+    
+    choice AcceptApplication: ContractId CLPAccount
+      with
+        points: Int
+        accountTimestamp: Time
+      controller airline
+      do
+        create CLPAccount
+          with
+            customer = customer
+            airline = airline
+            name = name
+            address = address
+            email = email
+            phone = phone
+            accountTimestamp = accountTimestamp
+            dob = dob
+            points = points
+        
+    choice RejectApplication: Text
+      controller airline
+      do
+        -- No action needed, just a placeholder for rejection & archive
+        pure "Application rejected by airline."
