@@ -1,0 +1,24 @@
+module Problem1 where
+
+import Daml.Script
+import DA.Assert
+
+-- 1. Write a function named quadFunction that takes three integers for x, y, and z. It returns the value of 3x^2 + 2y + z
+
+quadFunction x y z = 3 * x * x + 2 * y + z
+
+quadFunctionTest = script do
+    let x = 1
+        y = 2
+        z = 3
+    let result = quadFunction x y z
+    result === 10
+    debug result
+
+quadFunctionLambdaTest = script do
+    let x = 1
+        y = 2
+        z = 3
+    let result = (\x y z -> 3 * x * x + 2 * y + z) x y z
+    result === 10
+    debug result

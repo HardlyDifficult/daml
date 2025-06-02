@@ -1,0 +1,14 @@
+module Problem2 where
+
+import Daml.Script
+import DA.Assert
+
+-- Write a function named doubleMe that takes an integer and returns its double.
+doubleMe x = x * 2
+
+-- Using the doubleMe function, write another function called doubleUs that takes two integers, doubles each of them, adds them up and returns the result.
+doubleUs x y = doubleMe x + doubleMe y
+
+testDoubleUs = script do
+    let result = doubleUs 3 4
+    result === 14
