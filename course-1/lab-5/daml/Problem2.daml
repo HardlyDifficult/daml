@@ -1,0 +1,30 @@
+module Problem2 where
+
+import Daml.Script as Script
+import DA.List as List
+import DA.Text as Text
+
+-- From lab-2
+termFrequency : Text -> Text -> Decimal
+termFrequency word listOfWords = do
+  let wws = words listOfWords
+  let matches = filter (== word) wws
+  let matchCount = List.length matches
+  let wordCount = List.length wws
+  intToDecimal matchCount / intToDecimal wordCount
+
+multiTermFrequency : Text -> [Text] -> [Decimal]
+multiTermFrequency x ys =
+  map (\y -> termFrequency x y) ys
+
+
+testMultiTermFrequency = script do 
+    let x = "hello"
+    let y = [ "hello from the other side I must have called a thousand times", 
+            "You say goodbye and I say hello hello hello",
+            "hello is it me you’re looking for",
+            "hello hello is anyone home"
+            ]
+
+    debug $ multiTermFrequency x y
+    return()

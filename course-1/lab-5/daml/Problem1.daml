@@ -1,0 +1,19 @@
+module Problem1 where
+
+import Daml.Script
+import DA.Map as Map
+
+song = [("do", "a deer, a female deer"), ("re", "a drop of golden sun"), ("mi", "a name, I call myself"), ("fa", "a long long way to run")]
+
+testMap = script do
+  let songMap = Map.fromList song
+  debug $ Map.keys songMap
+  debug $ Map.values songMap
+
+testMapFunction = script do
+  debug $ map (\(note, _) -> note) song
+  debug $ map (\(_, meaning) -> meaning) song
+
+testMapFunction2 = script do
+  debug $ map fst song
+  debug $ map snd song
