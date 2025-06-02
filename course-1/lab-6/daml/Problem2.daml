@@ -1,0 +1,34 @@
+module Problem2 where
+
+import Daml.Script as Script
+
+data AirTravelPoint = AirTravelPoint with
+  count: Int
+
+data DiningPoint = DiningPoint with
+  count: Int
+
+class Redeemable i o where
+  redeem: i -> o
+
+instance Redeemable AirTravelPoint Decimal where 
+    redeem points = intToDecimal points.count * 10.00 
+
+instance Redeemable DiningPoint Decimal where 
+    redeem points = intToDecimal points.count * 5.0 
+
+redeemPoints: (Redeemable a b) => a -> b
+redeemPoints points = redeem points 
+
+testRedeemable = script do 
+    let myTravelPoints = AirTravelPoint with 
+            count = 500
+
+        myDiningPoints = DiningPoint with 
+            count = 5000
+
+        myTotalRedeemedPoints: Decimal = redeem myTravelPoints + redeem myDiningPoints
+
+    debug  myTotalRedeemedPoints 
+   
+    return()
