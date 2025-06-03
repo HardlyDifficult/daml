@@ -1,0 +1,1 @@
+[Solutions](https://github.com/digital-asset/certification-damlfundamentals-testingindaml-lab-solution)

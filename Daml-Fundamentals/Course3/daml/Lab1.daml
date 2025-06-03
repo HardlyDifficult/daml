@@ -2,7 +2,8 @@ module Lab1 where
 
 import DA.Date(toDateUTC)
 import DA.Time()
-import DA.Optional(isNone)
+import DA.Optional(isNone, isSome)
+import DA.Text
 
 template CLPAccount
   with
@@ -21,6 +22,7 @@ template CLPAccount
     ensure name /= ""
       && address /= ""
       && email /= ""
+      && DA.Text.length id >= 3
     key (airline, id) : (Party, Text)
     maintainer key._1
 
@@ -76,8 +78,13 @@ template CLPApplication
       controller airline
       do
         cid <- lookupByKey @CLPAccount (airline, id)
-        if isNone cid then do
-          account <- create CLPAccount
+        -- assertMsg "Application already processed" (isSome cid)
+        -- if isSome cid then abort "Application already processed2"
+        -- else do
+        if isSome cid then trace "Already processed" return None
+        else do
+          debug "here"
+          account <- trace "Creating account" (create CLPAccount
             with
               customer = customer
               airline = airline
@@ -88,9 +95,8 @@ template CLPApplication
               phone = phone
               accountTimestamp = timeStamp
               dob = dob
-              points = 0
+              points = 0)
           return (Some account)
-        else return None
         
   -- New for Lab 1
 
