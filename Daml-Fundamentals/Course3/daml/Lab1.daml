@@ -1,0 +1,118 @@
+module Lab1 where
+
+import DA.Date(toDateUTC)
+import DA.Time()
+import DA.Optional(isNone)
+
+template CLPAccount
+  with
+    customer: Party
+    airline: Party
+    id: Text
+    name: Text
+    address: Text
+    email: Text
+    phone: Optional Text
+    accountTimestamp: Time
+    dob: Date
+    points: Int
+  where
+    signatory customer, airline
+    ensure name /= ""
+      && address /= ""
+      && email /= ""
+    key (airline, id) : (Party, Text)
+    maintainer key._1
+
+    choice AddPoints: ContractId CLPAccount
+      with
+        pointsToAdd: Int
+      controller airline
+      do
+        assertMsg "Points to add must be positive" (pointsToAdd > 0)
+        create this with
+          points = points + pointsToAdd
+
+template CLPApplication
+  with
+    customer: Party
+    airline: Party
+    id: Text
+    name: Text
+    address: Text
+    email: Text
+    phone: Optional Text
+    timeStamp: Time
+    dob: Date
+  where
+    signatory customer
+    observer airline
+    
+    choice SubmitApplication: ContractId CLPApplication
+      with
+        appCustomer: Party
+        appAirline: Party
+        customerId: Text
+        customerName: Text
+        customerAddress: Text
+        customerEmail: Text
+        customerPhone: Optional Text
+        timeStamp: Time
+        customerDob: Date
+      controller customer
+      do
+        assertMsg "Customer must match the one who created the application" (appCustomer == customer)
+        assertMsg "Airline must match the one who created the application" (appAirline == airline)
+        create this with
+          id = customerId
+          name = customerName
+          address = customerAddress
+          email = customerEmail
+          phone = customerPhone
+          timeStamp = timeStamp
+          dob = customerDob
+    
+    choice ReviewApplication: Optional(ContractId CLPAccount)
+      controller airline
+      do
+        cid <- lookupByKey @CLPAccount (airline, id)
+        if isNone cid then do
+          account <- create CLPAccount
+            with
+              customer = customer
+              airline = airline
+              id = id
+              name = name
+              address = address
+              email = email
+              phone = phone
+              accountTimestamp = timeStamp
+              dob = dob
+              points = 0
+          return (Some account)
+        else return None
+        
+  -- New for Lab 1
+
+template AirlineService
+  with
+    airline: Party
+    customer: Party
+  where
+    signatory airline
+    observer customer
+
+    nonconsuming choice CreateBlankCLPApplication: ContractId CLPApplication
+      controller customer
+      do
+        now <- getTime
+        create CLPApplication with
+          customer = customer
+          airline = airline
+          id = ""
+          name = ""
+          address = ""
+          email = ""
+          phone = None
+          timeStamp = now
+          dob = toDateUTC now

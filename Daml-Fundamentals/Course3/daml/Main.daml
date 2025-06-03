@@ -1,0 +1,25 @@
+module Main where
+
+import Daml.Script
+
+import Lab1
+
+setup = script do
+-- user_setup_begin
+  alice <- allocatePartyWithHint "Alice" (PartyIdHint "Alice")
+  bob <- allocatePartyWithHint "Bob" (PartyIdHint "Bob")
+  aliceId <- validateUserId "alice"
+  bobId <- validateUserId "bob"
+  createUser (User aliceId (Some alice)) [CanActAs alice]
+  createUser (User bobId (Some bob)) [CanActAs bob]
+
+  airline <- allocatePartyWithHint "Epic Airlines" (PartyIdHint "EpicAirlines")
+  airlineId <- validateUserId "epic-airlines"
+  createUser (User airlineId (Some airline)) [CanActAs airline]
+-- user_setup_end
+
+  submit airline do
+    createCmd AirlineService
+      with
+        airline = airline
+        customer = alice
