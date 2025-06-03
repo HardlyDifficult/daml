@@ -1,0 +1,83 @@
+module Lab2 where
+
+import Lab1
+import Daml.Script
+import DA.Date
+import DA.Time
+import DA.Optional
+
+data CLPData = CLPData with
+  customer1 : Party
+  customer2 : Party
+  airline : Party
+  airlineServiceCid : ContractId AirlineService
+
+
+setupCLPData : Text -> Text -> Text -> Script CLPData
+setupCLPData customer1Name customer2Name airlineName = script do
+  customer1 <- allocateParty customer1Name
+  customer2 <- allocateParty customer2Name
+  airline <- allocateParty airlineName
+  airlineServiceCid <- submit airline do
+    createCmd AirlineService with
+      airline = airline
+      customer = customer1
+
+  return CLPData with 
+    customer1=customer1
+    customer2=customer2
+    airline=airline
+    airlineServiceCid=airlineServiceCid
+
+-- test script to print the test-data
+testScript1: Script () 
+testScript1 = do 
+    clpData <- setupCLPData "Alice" "Bob" "Epic"
+    debug clpData.customer1
+    debug clpData.customer2
+    debug clpData.airline
+    debug clpData.airlineServiceCid
+    return ()
+  
+testUnhappyThenHappy = script do
+    clpData <- setupCLPData "Alice" "Bob" "Epic"
+    appCid <- submit clpData.customer1 do
+        exerciseCmd clpData.airlineServiceCid CreateBlankCLPApplication
+    now <- getTime 
+    submitMustFail clpData.customer2 do
+        exerciseCmd appCid SubmitApplication with
+            appCustomer = clpData.customer2
+            appAirline = clpData.airline
+            customerId = "123"
+            customerName = "Alice"
+            customerAddress = "123 Main St ABCD"
+            customerEmail = "alice@wonderland.io"
+            customerPhone = Some " 01-555-555-1234"
+            timeStamp = now
+            customerDob = date 2000 Jan 05    
+
+    appCid <- submit clpData.customer1 do
+        exerciseCmd appCid SubmitApplication with
+            appCustomer = clpData.customer1
+            appAirline = clpData.airline
+            customerId = "123"
+            customerName = "Alice"
+            customerAddress = "123 Main St ABCD"
+            customerEmail = "alice@wonderland.io"
+            customerPhone = Some " 01-555-555-1234"
+            timeStamp = now
+            customerDob = date 2000 Jan 05    
+
+    accountOptionalCid <- submit clpData.airline do
+        exerciseCmd appCid ReviewApplication
+    if isNone accountOptionalCid then
+        error "No account created"
+    else
+        debug "Account created successfully"
+    let accountCid = fromSome accountOptionalCid
+    
+    submit clpData.airline do
+        exerciseCmd accountCid AddPoints with
+            pointsToAdd = 1000
+
+    return()
