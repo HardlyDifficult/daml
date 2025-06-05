@@ -1,7 +1,10 @@
-.daml
-**/daml.js/
-build
-node_modules
+.daml/
+daml.js/
+build/
+bin/
+node_modules/
+*.dar
+*.jar
 
 *.log
 .DS_Store
